@@ -2,10 +2,10 @@ services:
   # Spring Boot Backend
   - type: web
     name: fooddash-api
-    runtime: java
+    env: docker
     plan: free
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar -Dspring.profiles.active=prod target/food-ordering-0.0.1-SNAPSHOT.jar
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
         sync: false   # Set this manually in Render dashboard
