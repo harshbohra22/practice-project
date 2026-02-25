@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useOrderNotifications } from '../hooks/useOrderNotifications';
-import { Package, User, Clock, Bell, Truck, LogOut, ChevronRight, X } from 'lucide-react';
+import { Clock, Bell, LogOut, X } from 'lucide-react';
 import api from '../config/api';
 
 interface Order {

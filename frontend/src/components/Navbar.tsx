@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { LogOut, User, Store, ShoppingBag, ChefHat } from 'lucide-react';
+import { LogOut, ShoppingBag, ChefHat } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
@@ -36,8 +36,8 @@ const Navbar = () => {
                                 <Link
                                     to="/profile"
                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 ${location.pathname === '/profile'
-                                            ? 'bg-primary-50 text-primary-600'
-                                            : 'text-gray-600 hover:bg-gray-100'
+                                        ? 'bg-primary-50 text-primary-600'
+                                        : 'text-gray-600 hover:bg-gray-100'
                                         }`}
                                 >
                                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-400 to-orange-400 flex items-center justify-center text-white text-xs font-bold shadow-sm">

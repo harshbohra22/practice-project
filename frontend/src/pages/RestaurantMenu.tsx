@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Plus, Minus, Trash2, ChefHat, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Plus, Trash2, Sparkles, X } from 'lucide-react';
 import api from '../config/api';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 interface Variant { id: string; name: string; priceModifier: number; }
@@ -17,7 +16,6 @@ const FOOD_EMOJIS = ['🍕', '🍔', '🌮', '🍜', '🍱', '🥘', '🍛', '�
 const RestaurantMenu = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { user } = useAuth();
     const { cart, addToCart, removeFromCart, cartTotal } = useCart();
 
     const [items, setItems] = useState<FoodItem[]>([]);
@@ -275,8 +273,8 @@ const RestaurantMenu = () => {
                                         <label
                                             key={v.id}
                                             className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-150 ${chosenVariant?.id === v.id
-                                                    ? 'border-primary-400 bg-primary-50'
-                                                    : 'border-gray-100 hover:border-gray-200 bg-gray-50'
+                                                ? 'border-primary-400 bg-primary-50'
+                                                : 'border-gray-100 hover:border-gray-200 bg-gray-50'
                                                 }`}
                                         >
                                             <input
@@ -305,8 +303,8 @@ const RestaurantMenu = () => {
                                         <label
                                             key={a.id}
                                             className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-150 ${chosenAddons.some(add => add.id === a.id)
-                                                    ? 'border-primary-400 bg-primary-50'
-                                                    : 'border-gray-100 hover:border-gray-200 bg-gray-50'
+                                                ? 'border-primary-400 bg-primary-50'
+                                                : 'border-gray-100 hover:border-gray-200 bg-gray-50'
                                                 }`}
                                         >
                                             <input
