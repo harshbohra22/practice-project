@@ -1,0 +1,25 @@
+services:
+  # Spring Boot Backend
+  - type: web
+    name: fooddash-api
+    runtime: java
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar -Dspring.profiles.active=prod target/food-ordering-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        sync: false   # Set this manually in Render dashboard
+      - key: REDIS_URL
+        sync: false   # Set this after adding Redis service below
+      - key: ELASTICSEARCH_URL
+        sync: false   # Set this after setting up Bonsai/Elastic
+      - key: FRONTEND_URL
+        sync: false   # Set to your Vercel URL e.g. https://fooddash.vercel.app
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+  # Redis (optional — uncomment after upgrading plan or using free Redis add-on)
+  # - type: redis
+  #   name: fooddash-redis
+  #   plan: free
+  #   maxmemoryPolicy: allkeys-lru
