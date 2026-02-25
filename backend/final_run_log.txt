@@ -1,0 +1,242 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.practice:food-ordering >---------------------
+[INFO] Building food-ordering 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:4.0.3:run (default-cli) > test-compile @ food-ordering >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ food-ordering ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ food-ordering ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ food-ordering ---
+[INFO] skip non existing resourceDirectory C:\Users\dell\practice-project\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ food-ordering ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:4.0.3:run (default-cli) < test-compile @ food-ordering <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:4.0.3:run (default-cli) @ food-ordering ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.3)
+
+2026-02-24T18:50:48.248+05:30  INFO 24804 --- [food-ordering] [           main] c.p.f.FoodOrderingApplication            : Starting FoodOrderingApplication using Java 21.0.7 with PID 24804 (C:\Users\dell\practice-project\backend\target\classes started by dell in C:\Users\dell\practice-project\backend)
+2026-02-24T18:50:48.252+05:30  INFO 24804 --- [food-ordering] [           main] c.p.f.FoodOrderingApplication            : No active profile set, falling back to 1 default profile: "default"
+2026-02-24T18:50:49.524+05:30  INFO 24804 --- [food-ordering] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-02-24T18:50:49.528+05:30  INFO 24804 --- [food-ordering] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-24T18:50:49.737+05:30  INFO 24804 --- [food-ordering] [           main] .RepositoryConfigurationExtensionSupport : Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.practice.foodordering.repository.search.FoodItemSearchRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+2026-02-24T18:50:49.764+05:30  INFO 24804 --- [food-ordering] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 220 ms. Found 9 JPA repository interfaces.
+2026-02-24T18:50:50.386+05:30  INFO 24804 --- [food-ordering] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-02-24T18:50:50.403+05:30  INFO 24804 --- [food-ordering] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-24T18:50:50.403+05:30  INFO 24804 --- [food-ordering] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-02-24T18:50:50.495+05:30  INFO 24804 --- [food-ordering] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2162 ms
+2026-02-24T18:50:50.651+05:30  INFO 24804 --- [food-ordering] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-24T18:50:50.737+05:30  INFO 24804 --- [food-ordering] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-02-24T18:50:51.169+05:30  INFO 24804 --- [food-ordering] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-24T18:50:51.203+05:30  INFO 24804 --- [food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-24T18:50:51.491+05:30  INFO 24804 --- [food-ordering] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:food_ordering user=SA
+2026-02-24T18:50:51.493+05:30  INFO 24804 --- [food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-24T18:50:51.545+05:30  WARN 24804 --- [food-ordering] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-24T18:50:51.584+05:30  INFO 24804 --- [food-ordering] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:food_ordering]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: FOOD_ORDERING/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-24T18:50:53.339+05:30  INFO 24804 --- [food-ordering] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    create table addons (
+        id uuid not null,
+        name varchar(255) not null,
+        price numeric(10,2) not null,
+        item_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table cities (
+        id uuid not null,
+        name varchar(255) not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table food_items (
+        id uuid not null,
+        item_type enum ('ADDON_NO_VARIANT','NO_ADDON_NO_VARIANT','VARIANT_AND_ADDON','VARIANT_NO_ADDON') not null,
+        name varchar(255) not null,
+        price numeric(10,2) not null,
+        restaurant_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table order_item_addons (
+        id uuid not null,
+        addon_id uuid not null,
+        order_item_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table order_items (
+        id uuid not null,
+        quantity integer not null,
+        item_id uuid not null,
+        order_id uuid not null,
+        variant_id uuid,
+        primary key (id)
+    )
+Hibernate: 
+    create table orders (
+        id uuid not null,
+        placed_at timestamp(6) not null,
+        status enum ('CANCELLED','COMPLETED','OUT_FOR_DELIVERY','PLACED','PREPARING') not null,
+        total_price numeric(10,2) not null,
+        user_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table restaurants (
+        id uuid not null,
+        address TEXT,
+        landmark varchar(255),
+        name varchar(255) not null,
+        rating float(24),
+        city_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table users (
+        id uuid not null,
+        created_at timestamp(6),
+        password_hash varchar(255),
+        phone_or_email varchar(255) not null,
+        role enum ('ADMIN','CUSTOMER') not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table variants (
+        id uuid not null,
+        name varchar(255) not null,
+        price_modifier numeric(10,2) not null,
+        item_id uuid not null,
+        primary key (id)
+    )
+Hibernate: 
+    alter table if exists cities 
+       drop constraint if exists UKl61tawv0e2a93es77jkyvi7qa
+Hibernate: 
+    alter table if exists cities 
+       add constraint UKl61tawv0e2a93es77jkyvi7qa unique (name)
+Hibernate: 
+    alter table if exists users 
+       drop constraint if exists UKebjrdar9aylgh3ot3uh6mv9x5
+Hibernate: 
+    alter table if exists users 
+       add constraint UKebjrdar9aylgh3ot3uh6mv9x5 unique (phone_or_email)
+Hibernate: 
+    alter table if exists addons 
+       add constraint FK9mxdsjtd4im2c3pa0677l1ho2 
+       foreign key (item_id) 
+       references food_items
+Hibernate: 
+    alter table if exists food_items 
+       add constraint FK1f3re9f14rtkoyghyuhx3cv9l 
+       foreign key (restaurant_id) 
+       references restaurants
+Hibernate: 
+    alter table if exists order_item_addons 
+       add constraint FK6ahnnja8r509li0wd5r81eqsr 
+       foreign key (addon_id) 
+       references addons
+Hibernate: 
+    alter table if exists order_item_addons 
+       add constraint FK6dl26ql0xyhmm47fb4dncrwov 
+       foreign key (order_item_id) 
+       references order_items
+Hibernate: 
+    alter table if exists order_items 
+       add constraint FKt872ulclpwsdq2o2v0mrggw52 
+       foreign key (item_id) 
+       references food_items
+Hibernate: 
+    alter table if exists order_items 
+       add constraint FKbioxgbv59vetrxe0ejfubep1w 
+       foreign key (order_id) 
+       references orders
+Hibernate: 
+    alter table if exists order_items 
+       add constraint FKtq7mxki18i9ny52bs843qp74h 
+       foreign key (variant_id) 
+       references variants
+Hibernate: 
+    alter table if exists orders 
+       add constraint FK32ql8ubntj5uh44ph9659tiih 
+       foreign key (user_id) 
+       references users
+Hibernate: 
+    alter table if exists restaurants 
+       add constraint FKqxinx5shi9vp70a0huwi3bhqv 
+       foreign key (city_id) 
+       references cities
+Hibernate: 
+    alter table if exists variants 
+       add constraint FKgtfon17pvqx39l44t6sxne7g2 
+       foreign key (item_id) 
+       references food_items
+2026-02-24T18:50:53.462+05:30  INFO 24804 --- [food-ordering] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-24T18:50:53.558+05:30  INFO 24804 --- [food-ordering] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-24T18:50:54.473+05:30  WARN 24804 --- [food-ordering] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'itemController' defined in file [C:\Users\dell\practice-project\backend\target\classes\com\practice\foodordering\controller\ItemController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'itemService' defined in file [C:\Users\dell\practice-project\backend\target\classes\com\practice\foodordering\service\ItemService.class]: Unsatisfied dependency expressed through constructor parameter 3: Error creating bean with name 'searchService' defined in file [C:\Users\dell\practice-project\backend\target\classes\com\practice\foodordering\service\SearchService.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'com.practice.foodordering.repository.search.FoodItemSearchRepository' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-02-24T18:50:54.473+05:30  INFO 24804 --- [food-ordering] [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-24T18:50:54.476+05:30  INFO 24804 --- [food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-24T18:50:54.478+05:30  INFO 24804 --- [food-ordering] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-24T18:50:54.480+05:30  INFO 24804 --- [food-ordering] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-02-24T18:50:54.489+05:30  INFO 24804 --- [food-ordering] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-02-24T18:50:54.506+05:30 ERROR 24804 --- [food-ordering] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in com.practice.foodordering.service.SearchService required a bean of type 'com.practice.foodordering.repository.search.FoodItemSearchRepository' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.practice.foodordering.repository.search.FoodItemSearchRepository' in your configuration.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.958 s
+[INFO] Finished at: 2026-02-24T18:50:54+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:4.0.3:run (default-cli) on project food-ordering: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
