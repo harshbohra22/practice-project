@@ -13,20 +13,14 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final java.util.Map<String, String> otpStore = new java.util.concurrent.ConcurrentHashMap<>();
+    private final OtpService otpService;
 
     public void generateOtp(String phoneOrEmail) {
-        // String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6
-        // digit OTP
-        String otp = "123456"; // Fixed OTP for local testing convenience
-        otpStore.put(phoneOrEmail, otp);
-        System.out.println("OTP for " + phoneOrEmail + ": " + otp + " (Fixed for testing)");
+        otpService.sendOtp(phoneOrEmail);
     }
 
     public Optional<AppUser> verifyOtpAndLogin(String phoneOrEmail, String otp) {
-        String storedOtp = otpStore.get(phoneOrEmail);
-        if (storedOtp != null && storedOtp.equals(otp)) {
-            otpStore.remove(phoneOrEmail);
+        if (otpService.verifyOtp(phoneOrEmail, otp)) {
             return Optional.of(registerOrLoginCustomer(phoneOrEmail));
         }
         return Optional.empty();
