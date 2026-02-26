@@ -132,8 +132,9 @@ public class OtpService {
             log.info("Verifying Twilio OTP for {}", formattedPhone);
 
             Twilio.init(twilioSid, twilioToken);
-            VerificationCheck check = VerificationCheck.creator(twilioVerifyServiceSid, code)
+            VerificationCheck check = VerificationCheck.creator(twilioVerifyServiceSid)
                     .setTo(formattedPhone)
+                    .setCode(code)
                     .create();
 
             boolean approved = "approved".equals(check.getStatus());
