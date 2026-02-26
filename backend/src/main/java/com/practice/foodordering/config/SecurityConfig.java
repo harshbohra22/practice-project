@@ -25,7 +25,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll());
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/cities/**",
+                                "/api/restaurants/**", "/api/items/**")
+                        .permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/orders/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/orders/user/**").permitAll()
+                        // Admin restricted routes
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/cities/**",
+                                "/api/restaurants/**", "/api/items/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/cities/**",
+                                "/api/restaurants/**", "/api/items/**", "/api/orders/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/cities/**",
+                                "/api/restaurants/**", "/api/items/**")
+                        .hasRole("ADMIN")
+                        .anyRequest().authenticated());
         return http.build();
     }
 

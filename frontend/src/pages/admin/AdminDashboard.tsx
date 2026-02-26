@@ -37,6 +37,7 @@ const AdminDashboard = () => {
     const [newItemPrice, setNewItemPrice] = useState('');
     const [newItemType, setNewItemType] = useState('VEG');
     const [isLoadingItems, setIsLoadingItems] = useState(false);
+    const [editingItem, setEditingItem] = useState<any | null>(null);
 
     // Order State
     const [orders, setOrders] = useState<any[]>([]);
@@ -131,6 +132,24 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleUpdateFoodItem = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingItem || !editingItem.name.trim() || !editingItem.price) return;
+        try {
+            await api.put(`/items/${editingItem.id}`, {
+                name: editingItem.name,
+                price: parseFloat(editingItem.price),
+                itemType: editingItem.itemType
+            });
+            setEditingItem(null);
+            fetchFoodItems(selectedRestaurantForItems);
+            alert('Item updated successfully!');
+        } catch (error) {
+            console.error('Failed to update item', error);
+            alert('Failed to update item.');
+        }
+    };
+
     const handleDeleteFoodItem = async (id: string) => {
         if (!window.confirm('Delete this item?')) return;
         try {
@@ -139,6 +158,43 @@ const AdminDashboard = () => {
         } catch (error) {
             console.error('Failed to delete item', error);
             alert('Failed to delete item.');
+        }
+    };
+
+    // Edit State
+    const [editingCity, setEditingCity] = useState<City | null>(null);
+    const [editingRest, setEditingRest] = useState<Restaurant | null>(null);
+
+    const handleUpdateCity = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingCity || !editingCity.name.trim()) return;
+        try {
+            await api.put(`/cities/${editingCity.id}`, { name: editingCity.name });
+            setEditingCity(null);
+            fetchCities();
+            alert('City updated!');
+        } catch (error) {
+            console.error('Failed to update city', error);
+            alert('Failed to update city.');
+        }
+    };
+
+    const handleUpdateRestaurant = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingRest || !editingRest.name.trim()) return;
+        try {
+            await api.put(`/restaurants/${editingRest.id}`, {
+                name: editingRest.name,
+                address: editingRest.address,
+                rating: editingRest.rating,
+                city: { id: selectedCityForRestaurants }
+            });
+            setEditingRest(null);
+            fetchRestaurants(selectedCityForRestaurants);
+            alert('Restaurant updated!');
+        } catch (error) {
+            console.error('Failed to update restaurant', error);
+            alert('Failed to update restaurant.');
         }
     };
 
@@ -239,18 +295,27 @@ const AdminDashboard = () => {
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Manage Cities</h2>
 
-                        {/* Add City Form */}
-                        <form onSubmit={handleAddCity} className="flex gap-3 mb-8">
+                        {/* Add/Edit City Form */}
+                        <form onSubmit={editingCity ? handleUpdateCity : handleAddCity} className="flex gap-3 mb-8">
                             <input
                                 type="text"
-                                value={newCityName}
-                                onChange={(e) => setNewCityName(e.target.value)}
-                                placeholder="Enter new city name..."
+                                value={editingCity ? editingCity.name : newCityName}
+                                onChange={(e) => editingCity ? setEditingCity({ ...editingCity, name: e.target.value }) : setNewCityName(e.target.value)}
+                                placeholder="Enter city name..."
                                 className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                             />
                             <button type="submit" className="bg-primary-500 hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center">
-                                <Plus size={18} className="mr-1" /> Add
+                                {editingCity ? 'Update' : (
+                                    <>
+                                        <Plus size={18} className="mr-1" /> Add
+                                    </>
+                                )}
                             </button>
+                            {editingCity && (
+                                <button type="button" onClick={() => setEditingCity(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2.5 rounded-xl font-bold transition-colors">
+                                    Cancel
+                                </button>
+                            )}
                         </form>
 
                         {/* City List */}
@@ -259,6 +324,9 @@ const AdminDashboard = () => {
                                 <div key={city.id} className="flex items-center justify-between p-4 border-b border-gray-200 last:border-0 hover:bg-white transition-colors">
                                     <span className="font-medium text-gray-800">{city.name}</span>
                                     <div className="flex gap-2">
+                                        <button onClick={() => setEditingCity(city)} className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                                            <Edit2 size={18} />
+                                        </button>
                                         <button onClick={() => handleDeleteCity(city.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                                             <Trash2 size={18} />
                                         </button>
@@ -276,25 +344,55 @@ const AdminDashboard = () => {
                             <h2 className="text-2xl font-bold text-gray-900">Manage Restaurants</h2>
                         </div>
 
-                        {/* Add Restaurant Form */}
-                        <form onSubmit={handleAddRestaurant} className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 space-y-4">
+                        {/* Add/Edit Restaurant Form */}
+                        <form onSubmit={editingRest ? handleUpdateRestaurant : handleAddRestaurant} className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8 space-y-4">
+                            <h3 className="font-bold text-gray-700">{editingRest ? 'Edit Restaurant' : 'New Restaurant'}</h3>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Restaurant Name</label>
-                                <input required value={newRestName} onChange={e => setNewRestName(e.target.value)} type="text" placeholder="e.g. Pizza Hut" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" />
+                                <input
+                                    required
+                                    value={editingRest ? editingRest.name : newRestName}
+                                    onChange={e => editingRest ? setEditingRest({ ...editingRest, name: e.target.value }) : setNewRestName(e.target.value)}
+                                    type="text"
+                                    placeholder="e.g. Pizza Hut"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                                />
                             </div>
                             <div className="flex gap-4">
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                    <input value={newRestAddress} onChange={e => setNewRestAddress(e.target.value)} type="text" placeholder="Full Address" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" />
+                                    <input
+                                        value={editingRest ? editingRest.address : newRestAddress}
+                                        onChange={e => editingRest ? setEditingRest({ ...editingRest, address: e.target.value }) : setNewRestAddress(e.target.value)}
+                                        type="text"
+                                        placeholder="Full Address"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                                    />
                                 </div>
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
-                                    <input value={newRestRating} onChange={e => setNewRestRating(e.target.value)} type="number" step="0.1" max="5" min="1" placeholder="4.5" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" />
+                                    <input
+                                        value={editingRest ? editingRest.rating : newRestRating}
+                                        onChange={e => editingRest ? setEditingRest({ ...editingRest, rating: parseFloat(e.target.value) }) : setNewRestRating(e.target.value)}
+                                        type="number"
+                                        step="0.1"
+                                        max="5"
+                                        min="1"
+                                        placeholder="4.5"
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                                    />
                                 </div>
                             </div>
-                            <button type="submit" className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2.5 rounded-lg font-bold transition-colors">
-                                Save Restaurant
-                            </button>
+                            <div className="flex gap-2">
+                                <button type="submit" className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2.5 rounded-lg font-bold transition-colors">
+                                    {editingRest ? 'Update Restaurant' : 'Save Restaurant'}
+                                </button>
+                                {editingRest && (
+                                    <button type="button" onClick={() => setEditingRest(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2.5 rounded-lg font-bold transition-colors">
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
                         </form>
 
                         <div className="mb-6">
@@ -329,7 +427,10 @@ const AdminDashboard = () => {
                                         >
                                             <Utensils size={16} /> <span className="text-xs font-medium">Menu</span>
                                         </button>
-                                        <button className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                                        <button
+                                            onClick={() => setEditingRest(r)}
+                                            className="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors"
+                                        >
                                             <Edit2 size={16} />
                                         </button>
                                         <button onClick={() => handleDeleteRestaurant(r.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -352,27 +453,47 @@ const AdminDashboard = () => {
                             <div className="space-y-4">
                                 {orders.map(order => (
                                     <div key={order.id} className="border border-gray-200 p-4 rounded-xl bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center">
-                                        <div>
-                                            <p className="font-bold text-gray-900">Order #{order.id.split('-')[0].toUpperCase()}</p>
-                                            <p className="text-sm text-gray-500">User: {order.user?.phoneOrEmail}</p>
-                                            <p className="text-sm font-medium">Total: ${order.totalPrice.toFixed(2)}</p>
-                                            <p className="text-xs text-gray-400">Placed: {new Date(order.placedAt).toLocaleString()}</p>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <p className="font-bold text-gray-900 text-lg">Order #{order.id.split('-')[0].toUpperCase()}</p>
+                                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                                        order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                                            order.status === 'PLACED' ? 'bg-blue-100 text-blue-700' :
+                                                                'bg-orange-100 text-orange-700'
+                                                    }`}>
+                                                    {order.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-500 mb-2">User: {order.user?.phoneOrEmail} • {new Date(order.placedAt).toLocaleString()}</p>
+
+                                            {/* Order Items */}
+                                            <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
+                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Order Items</p>
+                                                <ul className="space-y-1">
+                                                    {order.items?.map((item: any, idx: number) => (
+                                                        <li key={idx} className="text-sm text-gray-700 flex justify-between">
+                                                            <span>{item.name} <span className="text-gray-400">x{item.quantity}</span></span>
+                                                            <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                                <div className="mt-2 pt-2 border-t border-gray-200 flex justify-between">
+                                                    <span className="text-sm font-bold text-gray-900">Total</span>
+                                                    <span className="text-sm font-bold text-primary-600">${order.totalPrice.toFixed(2)}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="mt-4 md:mt-0 flex flex-col items-end gap-2">
-                                            <span className={`text-xs px-2 py-1 rounded-full font-bold ${order.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                                order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
-                                                }`}>
-                                                {order.status}
-                                            </span>
+
+                                        <div className="flex flex-col gap-2 w-full md:w-auto">
                                             <select
+                                                className="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 font-medium"
                                                 value={order.status}
                                                 onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                                                className="text-sm border border-gray-200 rounded-lg p-1 outline-none focus:ring-1 focus:ring-primary-500"
                                             >
                                                 <option value="PLACED">Placed</option>
                                                 <option value="PREPARING">Preparing</option>
                                                 <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
-                                                <option value="COMPLETED">Completed</option>
+                                                <option value="DELIVERED">Delivered</option>
                                                 <option value="CANCELLED">Cancelled</option>
                                             </select>
                                         </div>
@@ -399,16 +520,43 @@ const AdminDashboard = () => {
                             </select>
 
                             {selectedRestaurantForItems && (
-                                <form onSubmit={handleAddFoodItem} className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 py-4 border-t border-gray-200">
-                                    <input required value={newItemName} onChange={e => setNewItemName(e.target.value)} placeholder="Item Name" className="px-4 py-2 border border-gray-200 rounded-lg" />
-                                    <input required type="number" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} placeholder="Price" className="px-4 py-2 border border-gray-200 rounded-lg" />
-                                    <select value={newItemType} onChange={e => setNewItemType(e.target.value)} className="px-4 py-2 border border-gray-200 rounded-lg whitespace-nowrap">
+                                <form onSubmit={editingItem ? handleUpdateFoodItem : handleAddFoodItem} className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 py-4 border-t border-gray-200">
+                                    <h3 className="md:col-span-3 font-bold text-gray-700">{editingItem ? 'Edit Item' : 'New Item'}</h3>
+                                    <input
+                                        required
+                                        value={editingItem ? editingItem.name : newItemName}
+                                        onChange={e => editingItem ? setEditingItem({ ...editingItem, name: e.target.value }) : setNewItemName(e.target.value)}
+                                        placeholder="Item Name"
+                                        className="px-4 py-2 border border-gray-200 rounded-lg"
+                                    />
+                                    <input
+                                        required
+                                        type="number"
+                                        value={editingItem ? editingItem.price : newItemPrice}
+                                        onChange={e => editingItem ? setEditingItem({ ...editingItem, price: e.target.value }) : setNewItemPrice(e.target.value)}
+                                        placeholder="Price"
+                                        className="px-4 py-2 border border-gray-200 rounded-lg"
+                                    />
+                                    <select
+                                        value={editingItem ? editingItem.itemType : newItemType}
+                                        onChange={e => editingItem ? setEditingItem({ ...editingItem, itemType: e.target.value }) : setNewItemType(e.target.value)}
+                                        className="px-4 py-2 border border-gray-200 rounded-lg whitespace-nowrap"
+                                    >
                                         <option value="NO_ADDON_NO_VARIANT">NO ADDON / NO VARIANT</option>
                                         <option value="ADDON_NO_VARIANT">ADDON ONLY</option>
                                         <option value="VARIANT_NO_ADDON">VARIANT ONLY</option>
                                         <option value="VARIANT_AND_ADDON">BOTH ADDON & VARIANT</option>
                                     </select>
-                                    <button type="submit" className="md:col-span-3 bg-gray-800 text-white py-2 rounded-lg font-bold hover:bg-gray-900">Add Item</button>
+                                    <div className="md:col-span-3 flex gap-2">
+                                        <button type="submit" className="flex-1 bg-gray-800 text-white py-2 rounded-lg font-bold hover:bg-gray-900 transition-colors">
+                                            {editingItem ? 'Update Item' : 'Add Item'}
+                                        </button>
+                                        {editingItem && (
+                                            <button type="button" onClick={() => setEditingItem(null)} className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold hover:bg-gray-300 transition-colors">
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </div>
                                 </form>
                             )}
                         </div>
@@ -421,9 +569,14 @@ const AdminDashboard = () => {
                                             <h4 className="font-bold text-gray-900">{item.name}</h4>
                                             <p className="text-sm text-gray-500">${item.price.toFixed(2)} • {item.itemType}</p>
                                         </div>
-                                        <button onClick={() => handleDeleteFoodItem(item.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 size={18} />
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setEditingItem(item)} className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button onClick={() => handleDeleteFoodItem(item.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                                 {!isLoadingItems && foodItems.length === 0 && <p className="text-center text-gray-500 py-4">No items found for this restaurant.</p>}

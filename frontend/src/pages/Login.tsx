@@ -4,160 +4,201 @@ import { useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, KeyRound, ArrowRight, Sparkles } from 'lucide-react';
 
 const Login = () => {
+    const [isAdmin, setIsAdmin] = useState(false);
     const [identifier, setIdentifier] = useState('');
+    const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
-    const [step, setStep] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
-    const { requestOtp, verifyOtp } = useAuth();
+    const [step, setStep] = useState<'IDENTIFIER' | 'OTP'>('IDENTIFIER');
+    const [loading, setLoading] = useState(false);
+
+    const { requestOtp, verifyOtp, loginAdmin } = useAuth();
     const navigate = useNavigate();
 
-    const handleGetOtp = async (e: React.FormEvent) => {
+    const handleRequestOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!identifier.trim()) return;
-        setIsLoading(true);
+        setLoading(true);
         try {
             await requestOtp(identifier);
-            setStep(2);
+            setStep('OTP');
         } catch (error) {
-            console.error(error);
             alert('Failed to send OTP. Please check server connection.');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!otp.trim()) return;
-        setIsLoading(true);
+        setLoading(true);
         try {
             await verifyOtp(identifier, otp);
             navigate('/');
         } catch (error) {
-            console.error(error);
             alert('Invalid OTP. Please try again.');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
+        }
+    };
+
+    const handleAdminLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!identifier.trim() || !password.trim()) return;
+        setLoading(true);
+        try {
+            await loginAdmin(identifier, password);
+            navigate('/admin');
+        } catch (error) {
+            alert('Invalid Admin credentials.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4">
-            <div className="w-full max-w-md" style={{ animation: 'slide-up 0.5s ease-out both' }}>
-                {/* Card */}
-                <div className="rounded-3xl p-8 shadow-2xl border border-white/60"
-                    style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+        <div className="min-h-[80vh] flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary-100/50 border border-primary-50 p-8 relative overflow-hidden">
+                {/* Background Sparkles */}
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Sparkles className="w-24 h-24 text-primary-500 animate-pulse" />
+                </div>
 
-                    {/* Logo / Header */}
-                    <div className="text-center mb-8">
-                        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4"
-                            style={{ background: 'linear-gradient(135deg, #e76f51, #f4a261)' }}>
-                            <ChefHat className="h-8 w-8 text-white" />
+                <div className="relative">
+                    <div className="flex justify-center mb-8">
+                        <div className="bg-primary-500 p-4 rounded-2xl shadow-lg shadow-primary-200">
+                            <ChefHat className="w-8 h-8 text-white" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                            Welcome to{' '}
-                            <span style={{ background: 'linear-gradient(135deg, #e76f51, #f4a261)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                                FoodDash
-                            </span>
+                    </div>
+
+                    <div className="text-center mb-10">
+                        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
+                            Welcome to <span className="text-primary-600">FoodDash</span>
                         </h1>
-                        <p className="text-sm text-gray-500 mt-2">
-                            {step === 1 ? 'Enter your phone or email to continue' : 'Check your console for the OTP code'}
+                        <p className="text-gray-500 font-medium">
+                            {isAdmin ? 'Admin Portal Access' : 'Enter your phone or email to continue'}
                         </p>
                     </div>
 
-                    {/* Step indicator */}
-                    <div className="flex items-center gap-2 mb-8">
-                        <div className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${step >= 1 ? 'bg-primary-500' : 'bg-gray-100'}`} />
-                        <div className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-primary-500' : 'bg-gray-100'}`} />
+                    {/* Mode Toggle */}
+                    <div className="flex bg-gray-100 p-1 rounded-xl mb-8">
+                        <button
+                            onClick={() => { setIsAdmin(false); setStep('IDENTIFIER'); }}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isAdmin ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Customer
+                        </button>
+                        <button
+                            onClick={() => setIsAdmin(true)}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isAdmin ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Admin
+                        </button>
                     </div>
 
-                    {step === 1 ? (
-                        <form onSubmit={handleGetOtp} className="space-y-4">
-                            <div>
-                                <label htmlFor="identifier" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    Phone or Email
-                                </label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    {!isAdmin ? (
+                        /* Customer Flow */
+                        <form onSubmit={step === 'IDENTIFIER' ? handleRequestOtp : handleVerifyOtp} className="space-y-6">
+                            {step === 'IDENTIFIER' ? (
+                                <div className="space-y-4">
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+                                        </div>
+                                        <input
+                                            required
+                                            type="text"
+                                            value={identifier}
+                                            onChange={(e) => setIdentifier(e.target.value)}
+                                            className="block w-full pl-11 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none font-medium"
+                                            placeholder="Phone or Email"
+                                        />
+                                    </div>
+                                    <button
+                                        disabled={loading}
+                                        type="submit"
+                                        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-primary-200 flex items-center justify-center gap-2 group transition-all active:scale-[0.98] disabled:opacity-50"
+                                    >
+                                        {loading ? 'Sending OTP...' : (
+                                            <>
+                                                Get OTP <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+                                        </div>
+                                        <input
+                                            required
+                                            type="text"
+                                            value={otp}
+                                            onChange={(e) => setOtp(e.target.value)}
+                                            className="block w-full pl-11 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none font-medium tracking-[0.5em] text-center"
+                                            placeholder="••••••"
+                                            maxLength={6}
+                                        />
+                                    </div>
+                                    <button
+                                        disabled={loading}
+                                        type="submit"
+                                        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-primary-200 transition-all active:scale-[0.98] disabled:opacity-50"
+                                    >
+                                        {loading ? 'Verifying...' : 'Login Now'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep('IDENTIFIER')}
+                                        className="w-full text-gray-400 font-bold py-2 text-sm hover:text-gray-600 transition-colors"
+                                    >
+                                        Change Phone/Email
+                                    </button>
+                                </div>
+                            )}
+                        </form>
+                    ) : (
+                        /* Admin Flow */
+                        <form onSubmit={handleAdminLogin} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                            <div className="space-y-4">
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+                                    </div>
                                     <input
-                                        id="identifier"
+                                        required
                                         type="text"
                                         value={identifier}
                                         onChange={(e) => setIdentifier(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition-all duration-200 bg-gray-50/50 hover:bg-white text-sm font-medium"
-                                        placeholder="e.g. user@example.com"
-                                        required
+                                        className="block w-full pl-11 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none font-medium"
+                                        placeholder="Admin Email"
                                     />
                                 </div>
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                                style={{ background: 'linear-gradient(135deg, #e76f51, #f4a261)' }}
-                            >
-                                {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <>
-                                        <Sparkles className="h-4 w-4" />
-                                        Get OTP
-                                        <ArrowRight className="h-4 w-4" />
-                                    </>
-                                )}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleVerifyOtp} className="space-y-4">
-                            <div>
-                                <label htmlFor="otp" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    Enter OTP
-                                </label>
-                                <div className="relative">
-                                    <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
+                                    </div>
                                     <input
-                                        id="otp"
-                                        type="text"
-                                        value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition-all duration-200 bg-gray-50/50 hover:bg-white text-sm font-medium tracking-[0.25em] text-center"
-                                        placeholder="• • • • • •"
-                                        maxLength={6}
                                         required
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="block w-full pl-11 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none font-medium"
+                                        placeholder="Enter Password"
                                     />
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1.5 text-center">Check your backend console for OTP: <span className="font-bold text-primary-500">123456</span></p>
+                                <button
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-gray-200 flex items-center justify-center gap-2 group transition-all active:scale-[0.98] disabled:opacity-50"
+                                >
+                                    {loading ? 'Authenticating...' : 'Login as Admin'}
+                                </button>
                             </div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                                style={{ background: 'linear-gradient(135deg, #e76f51, #f4a261)' }}
-                            >
-                                {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <>
-                                        Verify & Login
-                                        <ArrowRight className="h-4 w-4" />
-                                    </>
-                                )}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setStep(1)}
-                                className="w-full text-sm text-gray-400 hover:text-gray-700 transition-colors duration-200 py-2 font-medium"
-                            >
-                                ← Change number/email
-                            </button>
                         </form>
                     )}
                 </div>
-
-                {/* Tagline */}
-                <p className="text-center text-xs text-gray-400 mt-6">
-                    🍔 Delicious food, delivered fast · FoodDash © 2025
-                </p>
             </div>
         </div>
     );
