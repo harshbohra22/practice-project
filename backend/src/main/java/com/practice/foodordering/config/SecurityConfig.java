@@ -64,6 +64,7 @@ public class SecurityConfig {
                 config.setAllowedOriginPatterns(List.of(
                                 "http://localhost:[*]",
                                 "https://*.vercel.app",
+                                allowedOrigin,
                                 allowedOrigin.replace("https://", "https://*.") // Handle origin pattern
                 ));
                 config.addAllowedHeader("*");
