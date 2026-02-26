@@ -86,8 +86,9 @@ public class OtpService {
 
     private void sendSms(String phone, String otp) {
         try {
+            log.info("Attempting to send SMS OTP to {}", phone);
             if (twilioSid.isEmpty() || twilioToken.isEmpty()) {
-                throw new IllegalStateException("Twilio not configured");
+                throw new IllegalStateException("Twilio not configured (SID or Token missing)");
             }
             Twilio.init(twilioSid, twilioToken);
             Message.creator(
@@ -95,11 +96,14 @@ public class OtpService {
                     new PhoneNumber(twilioFromPhone),
                     "Your FoodDash OTP is: " + otp)
                     .create();
-            log.info("Sent SMS OTP to {}", phone);
+            log.info("Successfully sent SMS OTP to {}", phone);
         } catch (Exception e) {
-            log.error("Failed to send SMS OTP to {}", phone, e);
+            log.error("CRITICAL: Failed to send SMS OTP to {}. Reason: {}", phone, e.getMessage());
+            if (e.getCause() != null) {
+                log.error("Cause: {}", e.getCause().getMessage());
+            }
             // In development, we log the OTP so the user can still proceed
-            log.warn("DEVELOPMENT MODE: OTP for {} is {}", phone, otp);
+            log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", phone, otp);
         }
     }
 
