@@ -50,6 +50,9 @@ public class OtpService {
         }
     }
 
+    import org.springframework.scheduling.annotation.Async;
+
+    @Async
     public void sendOtp(String identifier) {
         String otp = String.format("%06d", secureRandom.nextInt(1000000));
         otpStore.put(identifier, new OtpData(otp, LocalDateTime.now().plusMinutes(otpExpirationMinutes)));
