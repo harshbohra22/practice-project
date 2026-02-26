@@ -54,8 +54,8 @@ public class OrderService {
                 throw new RuntimeException("Cannot cancel order that is already " + order.getStatus());
             }
 
-            long minutesSincePlaced = Duration.between(order.getPlacedAt(), LocalDateTime.now()).toMinutes();
-            if (minutesSincePlaced > 1) {
+            long secondsSincePlaced = Duration.between(order.getPlacedAt(), LocalDateTime.now()).toSeconds();
+            if (secondsSincePlaced > 60) {
                 throw new RuntimeException("Cancellation window of 1 minute has expired.");
             }
 

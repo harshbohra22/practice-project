@@ -18,6 +18,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @com.fasterxml.jackson.annotation.JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
@@ -33,6 +34,7 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
+    @com.fasterxml.jackson.annotation.JsonManagedReference
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<OrderItemAddon> addons;
 }

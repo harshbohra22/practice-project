@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import api from '../config/api';
 
 interface OrderUpdate {
     orderId: string;
@@ -15,7 +16,7 @@ export const useOrderNotifications = (onUpdate: (update: OrderUpdate) => void) =
         // Note: In a real production app with auth headers, 
         // EventSource might need a polyfill (like event-source-polyfill) to pass native headers.
         // For simplicity here, we use the standard EventSource.
-        const eventSource = new EventSource(`http://localhost:8080/api/notifications/subscribe/${user.id}`);
+        const eventSource = new EventSource(`${api.defaults.baseURL}/notifications/subscribe/${user.id}`);
 
         eventSource.addEventListener('ORDER_UPDATE', (event) => {
             const data = JSON.parse(event.data);

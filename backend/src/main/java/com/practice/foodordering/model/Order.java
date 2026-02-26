@@ -32,9 +32,11 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
+    @com.fasterxml.jackson.annotation.JsonManagedReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<OrderItem> items;
 
+    @com.fasterxml.jackson.annotation.JsonProperty("createdAt")
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime placedAt;
