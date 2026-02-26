@@ -86,17 +86,20 @@ public class OtpService {
 
     private void sendSms(String phone, String otp) {
         try {
-            log.info("Attempting to send SMS OTP to {}", phone);
-            if (twilioSid.isEmpty() || twilioToken.isEmpty()) {
-                throw new IllegalStateException("Twilio not configured (SID or Token missing)");
+            // Ensure phone number has '+' prefix for Twilio E.164 format
+            String formattedPhone = phone.startsWith("+") ? phone : "+" + phone;
+            log.info("Attempting to send SMS OTP to {}", formattedPhone);
+
+            if (twilioSid.isEmpty() || twilioToken.isEmpty() || twilioSid.startsWith("ACxxxxx")) {
+                throw new IllegalStateException("Twilio not configured (SID or Token missing/placeholder)");
             }
             Twilio.init(twilioSid, twilioToken);
             Message.creator(
-                    new PhoneNumber(phone),
+                    new PhoneNumber(formattedPhone),
                     new PhoneNumber(twilioFromPhone),
                     "Your FoodDash OTP is: " + otp)
                     .create();
-            log.info("Successfully sent SMS OTP to {}", phone);
+            log.info("Successfully sent SMS OTP to {}", formattedPhone);
         } catch (Exception e) {
             log.error("CRITICAL: Failed to send SMS OTP to {}. Reason: {}", phone, e.getMessage());
             if (e.getCause() != null) {
