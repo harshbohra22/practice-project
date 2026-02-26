@@ -65,6 +65,7 @@ public class OtpService {
 
     private void sendEmail(String email, String otp) {
         try {
+            log.info("Attempting to send OTP email to {}", email);
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(email);
@@ -72,11 +73,14 @@ public class OtpService {
             message.setText("Your OTP for FoodDash login is: " + otp + ". This code expires in " + otpExpirationMinutes
                     + " minutes.");
             mailSender.send(message);
-            log.info("Sent email OTP to {}", email);
+            log.info("Successfully sent email OTP to {}", email);
         } catch (Exception e) {
-            log.error("Failed to send email OTP to {}", email, e);
+            log.error("CRITICAL: Failed to send email OTP to {}. Reason: {}", email, e.getMessage());
+            if (e.getCause() != null) {
+                log.error("Cause: {}", e.getCause().getMessage());
+            }
             // In development, we log the OTP so the user can still proceed
-            log.warn("DEVELOPMENT MODE: OTP for {} is {}", email, otp);
+            log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", email, otp);
         }
     }
 
