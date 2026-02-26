@@ -1,8 +1,8 @@
 package com.practice.foodordering.service;
 
 import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+import com.twilio.rest.verify.v2.service.Verification;
+import com.twilio.rest.verify.v2.service.VerificationCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +32,8 @@ public class OtpService {
     @Value("${twilio.auth.token:}")
     private String twilioToken;
 
-    @Value("${twilio.from.phone:}")
-    private String twilioFromPhone;
+    @Value("${twilio.verify.service.sid:}")
+    private String twilioVerifyServiceSid;
 
     @Value("${otp.expiration.minutes:5}")
     private int otpExpirationMinutes;
@@ -53,13 +53,12 @@ public class OtpService {
 
     @Async
     public void sendOtp(String identifier) {
-        String otp = String.format("%06d", secureRandom.nextInt(1000000));
-        otpStore.put(identifier, new OtpData(otp, LocalDateTime.now().plusMinutes(otpExpirationMinutes)));
-
         if (identifier.contains("@")) {
+            String otp = String.format("%06d", secureRandom.nextInt(1000000));
+            otpStore.put(identifier, new OtpData(otp, LocalDateTime.now().plusMinutes(otpExpirationMinutes)));
             sendEmail(identifier, otp);
         } else {
-            sendSms(identifier, otp);
+            sendSms(identifier);
         }
     }
 
@@ -79,52 +78,74 @@ public class OtpService {
             if (e.getCause() != null) {
                 log.error("Cause: {}", e.getCause().getMessage());
             }
-            // In development, we log the OTP so the user can still proceed
             log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", email, otp);
         }
     }
 
-    private void sendSms(String phone, String otp) {
+    private void sendSms(String phone) {
         try {
-            // Ensure phone number has '+' prefix for Twilio E.164 format
             String formattedPhone = phone.startsWith("+") ? phone : "+" + phone;
-            log.info("Attempting to send SMS OTP to {}", formattedPhone);
+            log.info("Attempting to send Twilio Verify SMS to {}", formattedPhone);
 
-            if (twilioSid.isEmpty() || twilioToken.isEmpty() || twilioSid.startsWith("ACxxxxx")) {
-                throw new IllegalStateException("Twilio not configured (SID or Token missing/placeholder)");
+            if (twilioSid.isEmpty() || twilioToken.isEmpty() || twilioVerifyServiceSid.isEmpty()) {
+                throw new IllegalStateException(
+                        "Twilio Verify not fully configured (SID, Token, or Service SID missing)");
             }
+
             Twilio.init(twilioSid, twilioToken);
-            Message.creator(
-                    new PhoneNumber(formattedPhone),
-                    new PhoneNumber(twilioFromPhone),
-                    "Your FoodDash OTP is: " + otp)
-                    .create();
-            log.info("Successfully sent SMS OTP to {}", formattedPhone);
+            Verification.creator(twilioVerifyServiceSid, formattedPhone, "sms").create();
+
+            log.info("Successfully initiated Twilio Verify for {}", formattedPhone);
         } catch (Exception e) {
             log.error("CRITICAL: Failed to send SMS OTP to {}. Reason: {}", phone, e.getMessage());
             if (e.getCause() != null) {
                 log.error("Cause: {}", e.getCause().getMessage());
             }
-            // In development, we log the OTP so the user can still proceed
-            log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", phone, otp);
+            log.warn("DEVELOPMENT MODE FALLBACK: Twilio Verify failed for {}", phone);
         }
     }
 
     public boolean verifyOtp(String identifier, String code) {
-        OtpData data = otpStore.get(identifier);
-        if (data == null)
-            return false;
+        if (identifier.contains("@")) {
+            OtpData data = otpStore.get(identifier);
+            if (data == null)
+                return false;
 
-        if (data.expiryTime.isBefore(LocalDateTime.now())) {
-            otpStore.remove(identifier);
-            return false;
+            if (data.expiryTime.isBefore(LocalDateTime.now())) {
+                otpStore.remove(identifier);
+                return false;
+            }
+
+            if (data.code.equals(code)) {
+                otpStore.remove(identifier);
+                return true;
+            }
+        } else {
+            return verifySmsOtp(identifier, code);
         }
-
-        if (data.code.equals(code)) {
-            otpStore.remove(identifier);
-            return true;
-        }
-
         return false;
+    }
+
+    private boolean verifySmsOtp(String phone, String code) {
+        try {
+            String formattedPhone = phone.startsWith("+") ? phone : "+" + phone;
+            log.info("Verifying Twilio OTP for {}", formattedPhone);
+
+            Twilio.init(twilioSid, twilioToken);
+            VerificationCheck check = VerificationCheck.creator(twilioVerifyServiceSid, code)
+                    .setTo(formattedPhone)
+                    .create();
+
+            boolean approved = "approved".equals(check.getStatus());
+            if (approved) {
+                log.info("Twilio OTP verification successful for {}", formattedPhone);
+            } else {
+                log.warn("Twilio OTP verification failed for {}: {}", formattedPhone, check.getStatus());
+            }
+            return approved;
+        } catch (Exception e) {
+            log.error("Error during Twilio OTP verification for {}: {}", phone, e.getMessage());
+            return false;
+        }
     }
 }
