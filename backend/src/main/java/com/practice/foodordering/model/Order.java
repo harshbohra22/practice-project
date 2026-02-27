@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -39,5 +39,5 @@ public class Order {
     @com.fasterxml.jackson.annotation.JsonProperty("createdAt")
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime placedAt;
+    private Instant placedAt;
 }

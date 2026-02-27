@@ -192,6 +192,7 @@ const CancelButton = ({ order, onSuccess }: { order: Order; onSuccess: () => voi
 
     useEffect(() => {
         const calculateTimeLeft = () => {
+            if (!order.createdAt) return 0;
             const placedAt = new Date(order.createdAt).getTime();
             return Math.max(0, 60000 - (Date.now() - placedAt));
         };

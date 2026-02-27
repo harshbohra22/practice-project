@@ -6,8 +6,7 @@ import com.practice.foodordering.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,13 +53,15 @@ public class OrderService {
                 throw new RuntimeException("Cannot cancel order that is already " + order.getStatus());
             }
 
-            long secondsSincePlaced = Duration.between(order.getPlacedAt(), LocalDateTime.now()).toSeconds();
+            long secondsSincePlaced = java.time.Duration.between(order.getPlacedAt(), Instant.now()).toSeconds();
             if (secondsSincePlaced > 60) {
                 throw new RuntimeException("Cancellation window of 1 minute has expired.");
             }
 
             order.setStatus(OrderStatus.CANCELLED);
-            return orderRepository.save(order);
+            Order savedOrder = orderRepository.save(order);
+            notificationService.sendOrderStatusUpdate(savedOrder);
+            return savedOrder;
         }).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 }
