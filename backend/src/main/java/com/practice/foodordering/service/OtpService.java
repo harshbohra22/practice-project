@@ -23,7 +23,7 @@ public class OtpService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:}")
+    @Value("${spring.mail.from:harshbohra2208@gmail.com}")
     private String fromEmail;
 
     @Value("${twilio.account.sid:}")
