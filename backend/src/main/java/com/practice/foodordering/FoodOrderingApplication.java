@@ -8,6 +8,8 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import org.springframework.web.client.RestTemplate;
+
 @SpringBootApplication
 @EnableCaching
 @EnableAsync
@@ -20,6 +22,11 @@ public class FoodOrderingApplication {
 	@Bean
 	public CacheManager cacheManager() {
 		return new ConcurrentMapCacheManager();
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
 	}
 
 }

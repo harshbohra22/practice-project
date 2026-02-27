@@ -6,10 +6,10 @@ import com.twilio.rest.verify.v2.service.VerificationCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -21,7 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class OtpService {
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate;
+
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
 
     @Value("${spring.mail.from:harshbohra2208@gmail.com}")
     private String fromEmail;
@@ -56,29 +59,52 @@ public class OtpService {
         if (identifier.contains("@")) {
             String otp = String.format("%06d", secureRandom.nextInt(1000000));
             otpStore.put(identifier, new OtpData(otp, LocalDateTime.now().plusMinutes(otpExpirationMinutes)));
-            sendEmail(identifier, otp);
+            sendEmailViaBrevo(identifier, otp);
         } else {
             sendSms(identifier);
         }
     }
 
-    private void sendEmail(String email, String otp) {
+    private void sendEmailViaBrevo(String email, String otp) {
         try {
-            log.info("Attempting to send OTP email to {}", email);
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(email);
-            message.setSubject("Your FoodDash OTP");
-            message.setText("Your OTP for FoodDash login is: " + otp + ". This code expires in " + otpExpirationMinutes
-                    + " minutes.");
-            mailSender.send(message);
-            log.info("Successfully sent email OTP to {}", email);
+            log.info("Attempting to send OTP email to {} via Brevo HTTP API", email);
+
+            if (brevoApiKey == null || brevoApiKey.isEmpty()) {
+                throw new IllegalStateException("Brevo API key is not configured");
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
+
+            String body = String.format("""
+                    {
+                      "sender": { "name": "FoodDash", "email": "%s" },
+                      "to": [{ "email": "%s" }],
+                      "subject": "Your FoodDash OTP",
+                      "textContent": "Your OTP for FoodDash login is: %s. This code expires in %d minutes."
+                    }
+                    """, fromEmail, email, otp, otpExpirationMinutes);
+
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://api.brevo.com/v3/smtp/email",
+                    HttpMethod.POST,
+                    request,
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully sent email OTP to {} via Brevo API", email);
+            } else {
+                log.error("Brevo API returned non-2xx status: {} for {}", response.getStatusCode(), email);
+            }
         } catch (Exception e) {
             log.error("CRITICAL: Failed to send email OTP to {}. Reason: {}", email, e.getMessage());
             if (e.getCause() != null) {
                 log.error("Cause: {}", e.getCause().getMessage());
             }
-            log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", email, otp);
+            log.warn("DEVELOPMENT MODE FALLBACK: OTP for {} is {}", email,
+                    otpStore.get(email) != null ? otpStore.get(email).code : "N/A");
         }
     }
 
@@ -101,7 +127,6 @@ public class OtpService {
             if (e.getCause() != null) {
                 log.error("Cause: {}", e.getCause().getMessage());
             }
-            log.warn("DEVELOPMENT MODE FALLBACK: Twilio Verify failed for {}", phone);
         }
     }
 
